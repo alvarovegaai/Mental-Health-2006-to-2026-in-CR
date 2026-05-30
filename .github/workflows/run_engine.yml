@@ -1,0 +1,32 @@
+name: Run Health Analytics Engine
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install pandas
+
+      - name: Run Integration Engine
+        run: python scripts/ingest_data.py
+
+      - name: Run Gap Analysis Engine
+        run: python scripts/calculate_gap.py
+
+      - name: Commit results
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add data/processed/
+          git commit -m "Automated update: Analytical output generated"
+          git push
